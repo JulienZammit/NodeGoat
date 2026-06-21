@@ -57,13 +57,15 @@ const parseResponse = (err, res, comm) => {
 
 
 // Starting here
-MongoClient.connect(db, (err, db) =>  {
+MongoClient.connect(db, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) =>  {
     if (err) {
         console.log("ERROR: connect");
         console.log(JSON.stringify(err));
         process.exit(1);
     }
     console.log("Connected to the database");
+    // mongodb v3+: connect yields a client; obtain the db from the connection string
+    const db = client.db();
 
     const collectionNames = [
         "users",

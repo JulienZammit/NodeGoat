@@ -14,6 +14,7 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 const marked = require("marked");
+const sanitizeHtml = require("sanitize-html");
 const nosniff = require("dont-sniff-mimetype");
 const app = express(); // Web framework to handle routing requests
 const routes = require("./app/routes");
@@ -32,13 +33,16 @@ if (httpsKeyPath && httpsCertPath && fs.existsSync(httpsKeyPath) && fs.existsSyn
 }
 const useHttps = Boolean(httpsOptions);
 
-MongoClient.connect(db, (err, db) => {
+MongoClient.connect(db, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
     if (err) {
         console.log("Error: DB: connect");
         console.log(err);
         process.exit(1);
     }
     console.log(`Connected to the database`);
+
+    // mongodb v3+: connect yields a client; obtain the db from the connection string
+    const db = client.db();
 
     // Fix for A5 - Security Misconfiguration: security response headers via helmet.
     // Remove default x-powered-by response header
@@ -105,12 +109,9 @@ MongoClient.connect(db, (err, db) => {
     // Fix for A5 - Security MisConfig
     app.use(express.static(`${__dirname}/app/assets`));
 
-    // Initializing marked library
-    // Fix for A9 - Insecure Dependencies: sanitize rendered markdown
-    marked.setOptions({
-        sanitize: true
-    });
-    app.locals.marked = marked;
+    // Fix for A9/A3 - marked v4 removed the built-in sanitizer, so render the
+    // markdown to HTML and then sanitize the result before exposing it to views.
+    app.locals.marked = (md) => sanitizeHtml(marked.parse(md || ""));
 
     // Application routes
     routes(app, db);
