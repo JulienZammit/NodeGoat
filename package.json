@@ -6,11 +6,11 @@
   "main": "server.js",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
-    "body-parser": "^1.15.1",
+    "body-parser": "^1.20.3",
     "consolidate": "^0.14.1",
     "csurf": "^1.8.3",
     "dont-sniff-mimetype": "^1.0.0",
-    "express": "^4.13.4",
+    "express": "^4.21.2",
     "express-session": "^1.13.0",
     "forever": "^2.0.0",
     "helmet": "^2.0.0",
@@ -20,7 +20,7 @@
     "node-esapi": "0.0.1",
     "serve-favicon": "^2.3.0",
     "swig": "^1.4.2",
-    "underscore": "^1.8.3"
+    "underscore": "^1.13.7"
   },
   "comments": {
     "//": "a9 insecure components"
@@ -36,10 +36,11 @@
     "docker-mongo": "docker run -p 27017:27017 --name mongo  mongo:latest",
     "start-infra": "docker-compose up",
     "stop-infra": "docker-compose down",
-    "cy:verify": "cypress verify"
+    "cy:verify": "cypress verify",
+    "gen-cert": "mkdir -p artifacts/cert && openssl req -x509 -newkey rsa:2048 -nodes -keyout artifacts/cert/server.key -out artifacts/cert/server.crt -days 365 -subj '/CN=localhost'"
   },
   "devDependencies": {
-    "async": "^2.0.0-rc.4",
+    "async": "^2.6.4",
     "cross-env": "^7.0.2",
     "cypress": "^3.3.1",
     "grunt": "^1.0.3",
