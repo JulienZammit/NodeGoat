@@ -27,5 +27,12 @@ test/e2e/videos/
 .env.local
 .env
 
+# TLS private keys / certificates - provide at deploy time, never commit
+*.key
+*.pem
+*.crt
+artifacts/cert/
+app/cert/
+
 # ignore Snyk Code scanner files
 .dccache
