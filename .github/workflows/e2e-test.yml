@@ -1,6 +1,10 @@
 name: E2E Test
 on: [push, pull_request]
 
+# Least-privilege default token scope for all jobs.
+permissions:
+  contents: read
+
 jobs:
   e2e-test:
     name: Node.js

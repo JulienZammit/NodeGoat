@@ -7,11 +7,58 @@ services:
       NODE_ENV:
       MONGODB_URI: mongodb://mongo:27017/nodegoat
     command: sh -c "until nc -z -w 2 mongo 27017 && echo 'mongo is ready for connections' && node artifacts/db-reset.js && npm start; do sleep 2; done"
+    # Bind only to the loopback interface so the app is not exposed on every host NIC.
     ports:
-      - "4000:4000"
+      - "127.0.0.1:4000:4000"
+    # Run with a read-only root filesystem; writable scratch space via tmpfs.
+    read_only: true
+    tmpfs:
+      - /tmp
+    # Drop all Linux capabilities - the Node process needs none of them.
+    cap_drop:
+      - ALL
+    # Prevent privilege escalation through setuid/setgid binaries.
+    security_opt:
+      - no-new-privileges:true
+    # Resource limits to prevent host resource exhaustion / DoS.
+    mem_limit: 512m
+    cpus: "1.0"
+    pids_limit: 256
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:4000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      - mongo
 
   mongo:
     image: mongo:4.4
     user: mongodb
     expose:
       - 27017
+    # Read-only root filesystem; data and config persisted in named volumes.
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 1g
+    cpus: "1.0"
+    pids_limit: 256
+    healthcheck:
+      test: ["CMD", "mongo", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mongo-data:
+  mongo-config:

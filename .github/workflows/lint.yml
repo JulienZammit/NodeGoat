@@ -1,6 +1,10 @@
 name: Lint
 on: [push, pull_request]
 
+# Least-privilege default token scope for all jobs.
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Node.js
