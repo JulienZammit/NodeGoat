@@ -53,6 +53,7 @@
                         <td>
                             <form method="POST" action="/benefits">
                                 <div class="input-group">
+                                    <input type="hidden" name="_csrf" value="{{csrftoken}}" />
                                     <input type="hidden" name="userId" value="{{user._id.toString()}}"></input>
                                     <input type="date" class="form-control" name="benefitStartDate" value="{{user.benefitStartDate}}"></input>
                                     <span class="input-group-btn">
